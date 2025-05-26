@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pathlib
+import subprocess
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import yaml
@@ -23,6 +24,9 @@ def set_observable(element, doc):
         else:
             raise ValueError(f"The given Observable is invalid [{value}].")
 
+def set_datatype(element, doc):
+    ET.SubElement(ET.SubElement(element, "DataType"), "Basic").text = doc["DataType"]
+
 def generate_yaml(outputpath, doc):
     root = ET.Element("Feature")
 
@@ -44,16 +48,16 @@ def generate_yaml(outputpath, doc):
         for p in c["Parameter"]:
             parameter = ET.SubElement(command, "Parameter")
             set_identifier(parameter, p)
-            ET.SubElement(ET.SubElement(parameter, "DataType"), "Basic").text = p["DataType"]
+            set_datatype(parameter, p)
         response = ET.SubElement(command, "Response")
         set_identifier(response, c["Response"])
-        ET.SubElement(ET.SubElement(response, "DataType"), "Basic").text = c["Response"]["DataType"]
+        set_datatype(response, c["Response"])
 
     for p in doc["Property"]:
-        prop = ET.SubElement(root, "property")
+        prop = ET.SubElement(root, "Property")
         set_identifier(prop, p)
         set_observable(prop, p)
-        ET.SubElement(ET.SubElement(prop, "DataType"), "Basic").text = p["DataType"]
+        set_datatype(prop, p)
 
     doc = minidom.parseString(ET.tostring(root, 'utf-8'))
     with outputpath.open("w") as f:
@@ -71,9 +75,23 @@ def main(filename, workdirname="."):
         doc = yaml.safe_load(f)
 
     for key, value in doc.items():
-        outputpath = pathlib.Path(workdir / f"{key}-v0.1.sila.xml")
+        packagepath = workdir / f"{key}"
+        if not packagepath.exists():
+            packagepath.mkdir()
+
+        outputpath = packagepath / f"{key}-v0.1.sila.xml"
         generate_yaml(outputpath, value)
+
+        if not pathlib.Path(packagepath / f"{key}").exists():
+            res = subprocess.run(
+                f"cd {str(packagepath)} && sila2-codegen new-package --package-name {key} {outputpath.name}",
+                shell=True, check=True)
+        else:
+            # Update the existing package. or overwrite by 'new-package' with '--overwrite' option
+            res = subprocess.run(
+                f"cd {str(packagepath)} && sila2-codegen update {outputpath.name}",
+                shell=True, check=True)
 
 
 if __name__ == "__main__":
-    main("./features.yml", "artifacts")
+    main("./features.yml", "./artifacts")

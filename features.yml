@@ -14,5 +14,5 @@ my_first_server:
         DataType: Boolean
   Property:
     - Identifier: Status
-      Observable: Yes
+      Observable: No
       DataType: Integer
