@@ -24,8 +24,26 @@ def set_observable(element, doc):
         else:
             raise ValueError(f"The given Observable is invalid [{value}].")
 
+def _set_datatype(element, value):
+    if isinstance(value, str):
+        assert value in ("String", "Integer", "Boolean"), value
+        ET.SubElement(ET.SubElement(element, "DataType"), "Basic").text = value
+    elif isinstance(value, list):
+        assert len(value) == 1, value
+        _set_datatype(ET.SubElement(ET.SubElement(element, "DataType"), "List"), value[0])
+    elif isinstance(value, dict):
+        structure = ET.SubElement(ET.SubElement(element, "DataType"), "Structure")
+        for k, v in value.items():
+            elem = ET.SubElement(structure, "Element")
+            ET.SubElement(elem, "Identifier").text = k
+            ET.SubElement(elem, "DisplayName").text = k
+            ET.SubElement(elem, "Description").text = k
+            _set_datatype(elem, v)
+    else:
+        raise ValueError(f"Unknown DataType given [{value}]")
+
 def set_datatype(element, doc):
-    ET.SubElement(ET.SubElement(element, "DataType"), "Basic").text = doc["DataType"]
+    _set_datatype(element, doc["DataType"])
 
 def generate_yaml(outputpath, doc):
     root = ET.Element("Feature")

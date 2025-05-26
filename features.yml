@@ -15,4 +15,4 @@ my_first_server:
   Property:
     - Identifier: Status
       Observable: No
-      DataType: Integer
+      DataType: [{"Item": "String", "Amount": "Integer"}]
