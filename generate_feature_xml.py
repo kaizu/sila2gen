@@ -123,4 +123,4 @@ def main(filename, workdirname="."):
 
 
 if __name__ == "__main__":
-    main("./features.yml", "./artifacts")
+    main("./features.yml", "./servers")
