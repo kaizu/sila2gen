@@ -1,0 +1,14 @@
+my_first_server:
+    Identifier: MyFirstServer
+    Command:
+        - Identifier: PutItem
+          Parameter:
+            - Identifier: Spot
+              DataType: String
+            - Identifier: UUID
+              DataType: String
+            - Identifier: Type
+              DataType: String
+          Response:
+            Identifier: Result
+            DataType: Boolean
