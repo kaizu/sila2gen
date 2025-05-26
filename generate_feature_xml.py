@@ -7,16 +7,25 @@ import xml.etree.ElementTree as ET
 import yaml
 
 
+def getchain(doc, keys, default=None, exist=False):
+    for key in keys:
+        if key in doc:
+            return doc[key]
+    else:
+        if exist:
+            raise KeyError(f"{keys}")
+    return default
+
 def set_identifier(element, doc):
-    ET.SubElement(element, "Identifier").text = doc["Identifier"]
-    ET.SubElement(element, "DisplayName").text = doc.get("DisplayName", doc["Identifier"])
-    ET.SubElement(element, "Description").text = doc.get("Description", doc["Identifier"])
+    ET.SubElement(element, "Identifier").text = getchain(doc, ("Identifier", "id"), exist=True)
+    ET.SubElement(element, "DisplayName").text = getchain(doc, ("DisplayName", "Identifier", "id"), exist=True)
+    ET.SubElement(element, "Description").text = getchain(doc, ("Description", "Identifier", "id"), exist=True)
 
 def set_observable(element, doc):
-    if "Observable" not in doc:
+    value = getchain(doc, ("Observable", "observable"), default=None)
+    if value is None:
         ET.SubElement(element, "Observable").text = "No"
     else:
-        value = doc["Observable"]
         if isinstance(value, str):
             ET.SubElement(element, "Observable").text = value
         elif isinstance(value, bool):
@@ -34,6 +43,7 @@ def _set_datatype(element, value):
     elif isinstance(value, dict):
         structure = ET.SubElement(ET.SubElement(element, "DataType"), "Structure")
         for k, v in value.items():
+            assert isinstance(k, str), k
             elem = ET.SubElement(structure, "Element")
             ET.SubElement(elem, "Identifier").text = k
             ET.SubElement(elem, "DisplayName").text = k
@@ -43,7 +53,7 @@ def _set_datatype(element, value):
         raise ValueError(f"Unknown DataType given [{value}]")
 
 def set_datatype(element, doc):
-    _set_datatype(element, doc["DataType"])
+    _set_datatype(element, getchain(doc, ("DataType", "type"), exist=True))
 
 def generate_yaml(outputpath, doc):
     root = ET.Element("Feature")
@@ -59,19 +69,20 @@ def generate_yaml(outputpath, doc):
 
     set_identifier(root, doc)
 
-    for c in doc["Command"]:
+    for c in getchain(doc, ("Command", "commands"), default=()):
         command = ET.SubElement(root, "Command")
         set_identifier(command, c)
         set_observable(command, c)
-        for p in c["Parameter"]:
+        for p in getchain(c, ("Parameter", "parameters"), default=()):
             parameter = ET.SubElement(command, "Parameter")
             set_identifier(parameter, p)
             set_datatype(parameter, p)
         response = ET.SubElement(command, "Response")
-        set_identifier(response, c["Response"])
-        set_datatype(response, c["Response"])
+        r = getchain(c, ("Response", "response"), exist=True)
+        set_identifier(response, r)
+        set_datatype(response, r)
 
-    for p in doc["Property"]:
+    for p in getchain(doc, ("Property", "properties"), default=()):
         prop = ET.SubElement(root, "Property")
         set_identifier(prop, p)
         set_observable(prop, p)

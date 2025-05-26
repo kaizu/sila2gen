@@ -1,18 +1,18 @@
 my_first_server:
-  Identifier: MyFirstServer
-  Command:
-    - Identifier: PutItem
-      Parameter:
-        - Identifier: Spot
-          DataType: String
-        - Identifier: UUID
-          DataType: String
-        - Identifier: Type
-          DataType: String
-      Response:
-        Identifier: Result
-        DataType: Boolean
-  Property:
-    - Identifier: Status
-      Observable: No
-      DataType: [{"Item": "String", "Amount": "Integer"}]
+  id: MyFirstServer
+  commands:
+    - id: PutItem
+      parameters:
+        - id: Spot
+          type: String
+        - id: UUID
+          type: String
+        - id: Type
+          type: String
+      response:
+        id: Result
+        type: Boolean
+  properties:
+    - id: Status
+      observable: No
+      type: [{"Item": "String", "Amount": "Integer"}]
