@@ -8,8 +8,20 @@ import yaml
 
 def set_identifier(element, doc):
     ET.SubElement(element, "Identifier").text = doc["Identifier"]
-    ET.SubElement(element, "DisplayName").text = doc["Identifier"]
-    ET.SubElement(element, "Description").text = doc["Identifier"]
+    ET.SubElement(element, "DisplayName").text = doc.get("DisplayName", doc["Identifier"])
+    ET.SubElement(element, "Description").text = doc.get("Description", doc["Identifier"])
+
+def set_observable(element, doc):
+    if "Observable" not in doc:
+        ET.SubElement(element, "Observable").text = "No"
+    else:
+        value = doc["Observable"]
+        if isinstance(value, str):
+            ET.SubElement(element, "Observable").text = value
+        elif isinstance(value, bool):
+            ET.SubElement(element, "Observable").text = "Yes" if value else "No"
+        else:
+            raise ValueError(f"The given Observable is invalid [{value}].")
 
 def generate_yaml(outputpath, doc):
     root = ET.Element("Feature")
@@ -28,7 +40,7 @@ def generate_yaml(outputpath, doc):
     for c in doc["Command"]:
         command = ET.SubElement(root, "Command")
         set_identifier(command, c)
-        ET.SubElement(command, "Observable").text = "No"
+        set_observable(command, c)
         for p in c["Parameter"]:
             parameter = ET.SubElement(command, "Parameter")
             set_identifier(parameter, p)
@@ -36,6 +48,12 @@ def generate_yaml(outputpath, doc):
         response = ET.SubElement(command, "Response")
         set_identifier(response, c["Response"])
         ET.SubElement(ET.SubElement(response, "DataType"), "Basic").text = c["Response"]["DataType"]
+
+    for p in doc["Property"]:
+        prop = ET.SubElement(root, "property")
+        set_identifier(prop, p)
+        set_observable(prop, p)
+        ET.SubElement(ET.SubElement(prop, "DataType"), "Basic").text = p["DataType"]
 
     doc = minidom.parseString(ET.tostring(root, 'utf-8'))
     with outputpath.open("w") as f:
