@@ -77,10 +77,10 @@ def generate_yaml(outputpath, doc):
             parameter = ET.SubElement(command, "Parameter")
             set_identifier(parameter, p)
             set_datatype(parameter, p)
-        response = ET.SubElement(command, "Response")
-        r = getchain(c, ("Response", "response"), exist=True)
-        set_identifier(response, r)
-        set_datatype(response, r)
+        for r in getchain(c, ("Response", "responses"), exist=True):
+            response = ET.SubElement(command, "Response")
+            set_identifier(response, r)
+            set_datatype(response, r)
 
     for p in getchain(doc, ("Property", "properties"), default=()):
         prop = ET.SubElement(root, "Property")
