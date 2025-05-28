@@ -7,4 +7,5 @@ requires-python = ">=3.11"
 dependencies = [
     "pyyaml>=6.0.2",
     "sila2[codegen]>=0.12.2",
+    "structlog>=25.3.0",
 ]

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import shutil
 import pathlib
 import subprocess
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
+import json
 import yaml
 
 
@@ -92,7 +94,7 @@ def generate_yaml(outputpath, doc):
     with outputpath.open("w") as f:
         doc.writexml(f, encoding='utf-8', newl='\n', indent='', addindent='  ')
 
-def main(filename, workdirname="."):
+def main(filename, workdirname=".", overwrite=False):
     filepath = pathlib.Path(filename)
     assert filepath.is_file(), filepath
     workdir = pathlib.Path(workdirname)
@@ -115,12 +117,19 @@ def main(filename, workdirname="."):
             res = subprocess.run(
                 f"cd {str(packagepath)} && sila2-codegen new-package --package-name {key} {outputpath.name}",
                 shell=True, check=True)
+        elif overwrite:
+            res = subprocess.run(
+                f"cd {str(packagepath)} && sila2-codegen new-package --overwrite --package-name {key} {outputpath.name}",
+                shell=True, check=True)
         else:
             # Update the existing package. or overwrite by 'new-package' with '--overwrite' option
             res = subprocess.run(
                 f"cd {str(packagepath)} && sila2-codegen update {outputpath.name}",
                 shell=True, check=True)
 
+        with (packagepath / f"{key}/feature_implementations/feature_definition.json").open('w') as f:
+            json.dump(value, f)
+
 
 if __name__ == "__main__":
-    main("./features.yml", "./servers")
+    main("./features.yml", "./servers", True)

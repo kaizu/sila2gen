@@ -1,0 +1,17 @@
+services:
+  manager:
+    image: python:3.13-slim
+    volumes:
+      - ./SimpleDeckServer:/app/
+    command: bash -c "cd /app/ && pip install -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    ports:
+      - "9005:8000"
+  sila2_server:
+    image: python:3.13-slim
+    volumes:
+      - ./servers/my_first_server:/app/
+    command: bash -c "cd /app/ && pip install -e . && python -m my_first_server --insecure --ip-address 0.0.0.0 --port 50052 --debug"
+    depends_on:
+      - manager
+    ports:
+      - "50052:50052"
