@@ -130,6 +130,8 @@ def main(filename, workdirname=".", overwrite=False):
         with (packagepath / f"{key}/feature_implementations/feature_definition.json").open('w') as f:
             json.dump(value, f)
 
+        shutil.copy2("./deck.py", str(packagepath / f"{key}/feature_implementations/deck.py"))
+
 
 if __name__ == "__main__":
     main("./features.yml", "./servers", True)

@@ -12,11 +12,14 @@ my_first_server:
       responses:
         - id: Result
           type: Boolean
-      contents:
-        - command: put_item
-          spot: Spot
-          uuid: UUID
-          item_type: Type
+      operations:
+        - operation: confirm
+          arguments:
+            spot: STATION_SPOT0
+        - operation: consume
+          arguments:
+            consumable: STATION_CONSUMABLE0
+            amount: 100
   properties:
     - id: Status
       observable: No
