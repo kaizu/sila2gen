@@ -16,6 +16,6 @@ services:
     ports:
       - "50052:50052"
     environment:
-      DECK_SERVER_URL: http://10.5.1.234:9005
+      DECK_SERVER_URL: ${DECK_SERVER_URL}
       STATION_SPOT0: A
       STATION_CONSUMABLE0: RollA

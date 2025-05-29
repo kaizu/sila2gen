@@ -1,5 +1,8 @@
-from my_first_server import Client
+from dotenv import load_dotenv
+load_dotenv()
 from deck import put_item, new_consumable, consumables_state, spot_state
+
+from my_first_server import Client
 # from sila2.client import SilaClient as Client
 
 
@@ -33,4 +36,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
