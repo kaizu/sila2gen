@@ -134,4 +134,4 @@ def main(filename, workdirname=".", overwrite=False):
 
 
 if __name__ == "__main__":
-    main("./features.yml", "./servers", True)
+    main("./feature_definition.yml", "./servers", True)

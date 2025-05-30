@@ -22,6 +22,7 @@ def main():
     print("Discovered SiLA Server with the following features:")
     for feature_identifier in client.SiLAService.ImplementedFeatures.get():
         print("-", feature_identifier)
+        # print(client.SiLAService.GetFeatureDefinition(feature_identifier).FeatureDefinition)
 
     print(dir(client.MyFirstServer))
     print(client.MyFirstServer.PutItem)
