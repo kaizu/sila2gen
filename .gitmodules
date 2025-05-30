@@ -1,0 +1,3 @@
+[submodule "SimpleDeckServer"]
+	path = SimpleDeckServer
+	url = git@github.com:kaizu/SimpleDeckServer.git
