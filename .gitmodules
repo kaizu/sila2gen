@@ -1,3 +1,6 @@
 [submodule "SimpleDeckServer"]
 	path = SimpleDeckServer
 	url = git@github.com:kaizu/SimpleDeckServer.git
+[submodule "sila_python"]
+	path = sila_python
+	url = git@gitlab.com:kaizu1/sila_python.git

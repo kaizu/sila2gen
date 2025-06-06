@@ -115,16 +115,16 @@ def main(filename, workdirname=".", overwrite=False):
 
         if not pathlib.Path(packagepath / f"{key}").exists():
             res = subprocess.run(
-                f"cd {str(packagepath)} && sila2-codegen new-package --package-name {key} {outputpath.name}",
+                f"sila2-codegen new-package --package-name {key} --output-directory {str(packagepath)} {str(outputpath)}",
                 shell=True, check=True)
         elif overwrite:
             res = subprocess.run(
-                f"cd {str(packagepath)} && sila2-codegen new-package --overwrite --package-name {key} {outputpath.name}",
+                f"sila2-codegen new-package --overwrite --package-name {key} --output-directory {str(packagepath)} {str(outputpath)}",
                 shell=True, check=True)
         else:
             # Update the existing package. or overwrite by 'new-package' with '--overwrite' option
             res = subprocess.run(
-                f"cd {str(packagepath)} && sila2-codegen update {outputpath.name}",
+                f"sila2-codegen update --output-directory {str(packagepath)} {str(outputpath)}",
                 shell=True, check=True)
 
         with (packagepath / f"{key}/feature_implementations/feature_definition.json").open('w') as f:

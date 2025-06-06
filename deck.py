@@ -11,52 +11,52 @@ logger = logging.getLogger(__name__)
 DECK_SERVER_URL = os.environ["DECK_SERVER_URL"]
 
 
-def execute_operations(operations: Iterable[dict]) -> bool:
-    return all(execute_single_operation(operation) for operation in operations)
+def execute_operations(operations: Iterable[dict], params: dict = {}, environ: dict = {}) -> bool:
+    return all(execute_single_operation(operation, params, environ) for operation in operations)
 
-def execute_single_operation(operation: dict) -> bool:
-    logger.info(str(operation))
-    ret = getattr(OperationExecutor, operation["operation"])(**operation["arguments"])
+def execute_single_operation(operation: dict, params: dict, environ: dict) -> bool:
+    logger.info(f"operation={str(operation)}, params={str(params)}, environ={str(environ)}")
+    ret = getattr(OperationExecutor, operation["operation"])(operation["arguments"], params, environ)
     logger.info(ret)
     return ret
 
 class OperationExecutor:
 
     @classmethod
-    def confirm(cls, **kwargs) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(kwargs)}")
+    def confirm(cls, args, params, environ) -> bool:
+        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
         state = spot_state()
         if state is None:
             return False
-        spot = os.environ[kwargs["spot"]]
+        spot = environ[args["spot"]]
         if spot not in state:
             return False
-        exist = kwargs.get("exist", True)
+        exist = args.get("exist", True)
         return (state[spot] is not None) == exist
 
     @classmethod
-    def move(cls, **kwargs) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(kwargs)}")
+    def move(cls, args, params, environ) -> bool:
+        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
         state = spot_state()
         if state is None:
             return False
-        from_spot = os.environ[kwargs["from_spot"]]
+        from_spot = environ[args["from_spot"]]
         if from_spot not in state or state[from_spot] is None:
             return False
-        to_spot = os.environ[kwargs["to_spot"]]
+        to_spot = environ[args["to_spot"]]
         if to_spot not in state or state[to_spot] is not None:
             return False
         return move_item(from_spot, to_spot)
 
     @classmethod
-    def consume(cls, **kwargs) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(kwargs)}")
-        return use(os.environ[kwargs["consumable"]], kwargs["amount"])
+    def consume(cls, args, params, environ) -> bool:
+        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
+        return use(environ[args["consumable"]], args["amount"])
 
     @classmethod
-    def update(cls, **kwargs) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(kwargs)}")
-        return update(os.environ[kwargs["consumable"]], kwargs["amount"])
+    def update(cls, args, params, environ) -> bool:
+        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
+        return update(environ[args["consumable"]], args["amount"])
 
 def http_request_put(url: str, json: dict) -> bool:
     response = requests.put(url, json=json)
