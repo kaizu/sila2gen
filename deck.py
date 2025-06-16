@@ -24,11 +24,11 @@ class OperationExecutor:
 
     @classmethod
     def confirm(cls, args, params, environ) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
+        logger.info(f"{inspect.currentframe().f_code.co_name}: args={str(args)}, params={str(params)}, environ={str(environ)}")
         state = spot_state()
         if state is None:
             return False
-        spot = environ[args["spot"]]
+        spot = params.get(args["spot"], environ[args["spot"]])
         if spot not in state:
             return False
         exist = args.get("exist", True)
@@ -36,27 +36,27 @@ class OperationExecutor:
 
     @classmethod
     def move(cls, args, params, environ) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
+        logger.info(f"{inspect.currentframe().f_code.co_name}: args={str(args)}, params={str(params)}, environ={str(environ)}")
         state = spot_state()
         if state is None:
             return False
-        from_spot = environ[args["from_spot"]]
+        from_spot = params.get(args["from_spot"], environ[args["from_spot"]])
         if from_spot not in state or state[from_spot] is None:
             return False
-        to_spot = environ[args["to_spot"]]
+        to_spot = params.get(args["to_spot"], environ[args["to_spot"]])
         if to_spot not in state or state[to_spot] is not None:
             return False
         return move_item(from_spot, to_spot)
 
     @classmethod
     def consume(cls, args, params, environ) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
-        return use(environ[args["consumable"]], args["amount"])
+        logger.info(f"{inspect.currentframe().f_code.co_name}: args={str(args)}, params={str(params)}, environ={str(environ)}")
+        return use(params.get(args["consumable"], environ[args["consumable"]]), args["amount"])
 
     @classmethod
     def update(cls, args, params, environ) -> bool:
-        logger.info(f"{inspect.currentframe().f_code.co_name}: {str(args)}")
-        return update(environ[args["consumable"]], args["amount"])
+        logger.info(f"{inspect.currentframe().f_code.co_name}: args={str(args)}, params={str(params)}, environ={str(environ)}")
+        return update(params.get(args["consumable"], environ[args["consumable"]]), args["amount"])
 
 def http_request_put(url: str, json: dict) -> bool:
     response = requests.put(url, json=json)
